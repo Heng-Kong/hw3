@@ -1,0 +1,168 @@
+自动化64    孔恒   2160504095
+
+1.画出附件图像的直方图
+close all;%清除图形窗口
+clear all;%清除MARLAB软件工作内存中的变量
+clc;%清除命令窗口显示内容
+[im,map1]=imread('citywall.bmp');%将citywall.bmp的图像信息读入matlab
+map1(end:255,:)=0; %生成一个256x3的矩阵，这个矩阵的每一行元素相同，相邻列的步长相同
+figure(1);
+imshow(im,map1);
+title('citywall原始图像');
+figure(2) 
+imhist(im,map1);%画出纯灰度级图像的直方图
+axis([0 255 0 5000]); %像素从0-255，像素点数从0-5000
+title('citywall直方图');
+[im,map2]=imread('citywall1.bmp');%将citywall1.bmp的图像信息读入matlab
+map2(end:255,:)=0; 
+figure(3);
+imshow(im,map2);
+title('citywall1原始图像');
+figure(4) 
+imhist(im,map2);
+axis([0 255 0 5000]); 
+title('citywall1直方图');
+[im,map3]=imread('citywall2.bmp');%将citywal2.bmp的图像信息读入matlab
+map3(end:255,:)=0; 
+figure(5);
+imshow(im,map3);
+title('citywall2原始图像');
+figure(6) 
+imhist(im,map3);
+axis([0 255 0 5000]); 
+title('citywall2直方图');
+
+
+
+2.把所有图像进行直方图均衡；输出均衡后的图像和源图像进行比对
+close all;%清除图形窗口
+clear all;%清除MARLAB软件工作内存中的变量
+clc;%清除命令窗口显示内容
+[gragh,map]=imread('woman2.bmp');%将woman2.bmp的图像信息读入matlab
+map(end:255,:)=0; 
+figure(1);
+imshow(gragh,map);%显示原始图像
+title('woman2原始图像');
+%-----------------------------------------------------------------------
+figure(2)
+GP=zeros(1,256);  %原图灰度概率密度函数
+image=ind2gray(gragh,map); %将三维的彩色图像转换为二级的纯灰度图像
+[m,n]=size(image); 
+for k=0:255               %计算原图各灰度级像素个数num 
+GP(k+1)=length(find(image==k))/(m*n);
+end                       %绘制原图直方图 
+bar(0:255,GP);
+axis([0 256 0 0.05]);  
+title('woman2原始图像直方图');  
+xlabel('灰度值');
+ylabel('像素的概率密度');
+%----------------------------------------------------------------------
+figure(3);
+J=histeq(gragh);%直方图均衡
+imshow(J,map);
+title('woman2直方图均衡结果');
+figure(4);
+GP=zeros(1,256);  %原图灰度概率密度函数
+image=ind2gray(J,map);  %将三维的彩色图像转换为二级的纯灰度图像
+[m,n]=size(image);%returns the number of rows and columns in im as separate output variables 
+for k=0:255               %计算原图各灰度级像素个数num 
+GP(k+1)=length(find(image==k))/(m*n);
+end                       %绘制原图直方图 
+bar(0:255,GP);
+axis([0 256 0 0.05]);  
+title('woman2均衡化后的直方图');  
+xlabel('灰度值');
+ylabel('像素的概率密度');
+
+
+
+3.进一步把图像按照对源图像直方图的观察，各自自行指定不同源图像的直方图，进行直方图匹配，进行图像增强
+close all;%清除图形窗口
+clear all;%清除MARLAB软件工作内存中的变量
+clc;%清除命令窗口显示内容
+[iamge,map]=imread('citywall2.bmp');%选定要处理的图像名称cityawll2,bmp
+map(end:255,:)=0; 
+IMA=ind2gray(iamge,map); 
+[iamge2,map2]=imread('citywall.bmp');%选定要匹配的直方图名称
+imag2=ind2gray(iamge2,map2); %将三维的彩色图像转换为二级的纯灰度图像 
+h=imhist(imag2,256);%以灰度级256显示要匹配图像的直方图
+g=histeq(IMA,h);
+figure(1);%分两列显示原始图像和直方图匹配增强后的图像
+subplot(1,2,1);
+imshow(iamge,map);
+title('citywall2.bmp原图');
+subplot(1,2,2);
+imshow(g,map2);
+title('直方图匹配增强后的图像');
+figure(2);
+subplot(3,1,1);
+imhist(IMA,map); 
+axis([0 256 0 10000]);
+title('原图citywall2.bmp的直方图');
+subplot(3,1,2);
+imhist(imag2,map2);
+axis([0 256 0 10000]);
+title(strcat('匹配图citywall.bmp的直方图'));
+subplot(3,1,3);
+imhist(g,map);
+axis([0 256 0 10000]);
+title('增强后图像直方图');
+
+
+
+4.对elain和lena图像进行7*7的局部直方图增强；
+close all
+clear all
+clc
+image1=imread('elain.bmp');%将图像elain.bmp导入matlab
+graph1=adapthisteq(image1,'NumTiles',[7 7]);
+subplot 121
+imshow(image1)
+title('elain原图')
+subplot 122
+imshow(graph1)
+title('elain局部增强图像')
+
+
+
+5.利用直方图对图像elain和woman进行分割；
+close all;%清除图形窗口
+clear all;%清除MARLAB软件工作内存中的变量
+clc;%清除命令窗口显示内容
+picture=imread('elain.bmp');%将图像elain.bmp读入matlab
+figure(1);
+imhist(picture);%显示原始图像的直方图
+title('elain的直方图');
+figure(2);
+subplot(1,2,1);
+imshow(picture);
+title('elain原始图像');
+t1 =80;      %从直方图的峰谷处得阈值；
+[m,n]=size(picture);
+IM1=zeros(m,n); 
+for i=1:m     
+    for j=1:n    
+        if picture(i,j)>t1        
+            IM1(i,j)=1;     
+        else
+            IM1(i,j)=0;   
+        end
+    end
+end
+subplot(1,2,2);
+imshow(IM1);
+title('分割后的elain.bmp');
+%调用MATLAB中graythresh函数和im2bw函数
+clc
+clear all
+picture=imread('elain.bmp');
+figure(3);
+subplot(1,2,1);
+imshow(picture);
+title('elain原始图像');
+level=graythresh(picture); %确定灰度阈值
+BW=im2bw(picture,level);
+subplot(1,2,2);
+imshow(BW);
+title('Otsu法阈值分割图像');
+
